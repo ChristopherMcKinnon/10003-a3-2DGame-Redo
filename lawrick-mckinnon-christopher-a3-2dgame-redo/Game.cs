@@ -14,7 +14,7 @@ namespace MohawkGame2D
         public int[] windowSize;
         public Vector2 windowCentre;
         string windowTitle;
-        Scene scene;
+        Scene Scene;
 
         /// <summary>
         ///     Setup runs once before the game loop begins.
@@ -26,7 +26,7 @@ namespace MohawkGame2D
             windowCentre = new Vector2(windowSize[0] / 2, windowSize[1] / 2);
             windowTitle = "2D Game by Christopher Lawrick-McKinnon";
 
-            scene = new Scene();
+            Scene = new Scene();
 
             // Window setup
             Window.SetSize(windowSize[0], windowSize[1]);
@@ -34,7 +34,7 @@ namespace MohawkGame2D
             Window.TargetFPS = 60;
 
 
-            scene.Init(this);
+            Scene.Init(this);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace MohawkGame2D
         public void Update()
         {
             Window.ClearBackground(Color.Black);
-            scene.Update();
+            Scene.Update();
         }
     }
 

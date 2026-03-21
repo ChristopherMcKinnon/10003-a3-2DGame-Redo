@@ -2,34 +2,48 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
+using System.Linq;
 
 namespace MohawkGame2D
 {
     internal class Scene
     {
-        public Game game;
-        public Player player;
-        public Controls controls;
+        public Game Game;
+        public Player Player;
+        public Controls Controls;
         public Vector2[] spawnArea;
         float spawnWidth;
+
+        float enemySpawnTimer;
+        float enemySpawnInterval;
 
         Vector2[][] randomStars;
         float starChangeTimer;
         float starChangeInterval;
 
 
-        public List<Bullet> liveBullets = new List<Bullet>();
+        public List<Entity> entities = new List<Entity>();
+        public List<Entity> addEntityQueue = new List<Entity>();
+        public List<Entity> removeEntityQueue = new List<Entity>();
+
         //public List<Enemy> liveEnemies = new List<Enemy>();
             
 
         // Intended to run once at the start
         public void Init(Game setGame)
         {
-            this.game = setGame;
-            this.player = new Player(this);
-            this.controls = new Controls(this);
+            this.Game = setGame;
+            this.Player = new Player(this);
+            Console.WriteLine($"Entities: {entities.GetType}");
+            Console.WriteLine($"Add: {addEntityQueue}");
+            AddEntity(this.Player);
+            Console.WriteLine($"Entities: {entities}");
+            this.Controls = new Controls(this);
 
-            this.spawnArea = [new Vector2(0-spawnWidth, 0-spawnWidth), new Vector2(game.windowSize[0] + spawnWidth, game.windowSize[1] + spawnWidth)];
+            this.spawnArea = [new Vector2(0-spawnWidth, 0-spawnWidth), new Vector2(Game.windowSize[0] + spawnWidth, Game.windowSize[1] + spawnWidth)];
+
+            this.enemySpawnTimer = 2f;
+            this.enemySpawnInterval = 0f;
 
             this.starChangeTimer = 1f; // Seconds it takes for stars to change;
             this.MakeStars();
@@ -39,34 +53,69 @@ namespace MohawkGame2D
         public void Update()
         {
             this.DrawStars();
-            this.controls.Update();
-            this.player.Update();
+            this.Controls.Update();
 
-            // Update each bullet
-            for (int i = liveBullets.Count - 1; i >= 0; i--) // Iterate backwards for possibility of removal
+            // Update each entity (do not remove or add any new ones yet)
+            foreach (Entity entity in entities)
             {
-                liveBullets[i].Update();
+                entity.Update();
             }
+            // Add new entities from entity queue
+            foreach (Entity entity in addEntityQueue.ToList())
+            {
+                entities.Add(entity);
+            }
+            addEntityQueue.Clear();
+            // Remove entities from entity queue
+            foreach (Entity entity in removeEntityQueue.ToList())
+            {
+                entities.Remove(entity);
+            }
+            removeEntityQueue.Clear();
+
+            SpawnEnemies();
         }
+        public void AddEntity(Entity setEntity)
+        {
+            addEntityQueue.Add(setEntity);
+        }
+        public void RemoveEntity(Entity setEntity)
+        {
+            removeEntityQueue.Add(setEntity);
+        }
+
+        public void SpawnEnemies()
+        {
+            enemySpawnInterval -= Time.DeltaTime;
+
+            if (enemySpawnInterval <= 0)
+            {
+                AddEntity(new Enemy(this));
+                enemySpawnInterval = enemySpawnTimer;
+            }
+
+            
+        }
+
         public Vector2 RandomSpawn()
         {
             Vector2 spawnLocation = new Vector2(-spawnWidth, -spawnWidth); // Just in case
             int spawnSide = Random.Integer(0, 4);
             if (spawnSide == 0) // Left
             {
-                spawnLocation = new Vector2(Random.Float(0, -spawnWidth), Random.Float(0, game.windowSize[1]));
+                spawnLocation = new Vector2(Random.Float(0, -spawnWidth), Random.Float(0, Game.windowSize[1]));
             }
             if (spawnSide == 0) // Top
             {
-                spawnLocation = new Vector2(Random.Float(0, game.windowSize[0]), Random.Float(0, -spawnWidth));
+                spawnLocation = new Vector2(Random.Float(0, Game.windowSize[0]), Random.Float(0, -spawnWidth));
             }
             if (spawnSide == 0) // Right
             {
-                spawnLocation = new Vector2(game.windowSize[0] + Random.Float(game.windowSize[0], spawnWidth), Random.Float(0, game.windowSize[1]));
+                spawnLocation = new Vector2(Game.windowSize[0] + Random.Float(Game.windowSize[0], spawnWidth), Random.Float(0, Game.windowSize[1]));
             }
             if (spawnSide == 0) // Down
             {
-                spawnLocation = new Vector2(Random.Float(0, game.windowSize[0]), game.windowSize[1] + Random.Float(0, spawnWidth));
+                spawnLocation = new Vector2(Random.Float(0, Game.windowSize[0]), Game.windowSize[1] + Random.Float(0, spawnWidth));
             }
             return spawnLocation;
         }
@@ -86,9 +135,9 @@ namespace MohawkGame2D
                 position.X = 0;
                 velocity.X *= velocityRetain;
             }
-            if (position.X > game.windowSize[0]) // Right side
+            if (position.X > Game.windowSize[0]) // Right side
             {
-                position.X = game.windowSize[0];
+                position.X = Game.windowSize[0];
                 velocity.X *= velocityRetain;
             }
             if (position.Y < 0) // Top side
@@ -96,9 +145,9 @@ namespace MohawkGame2D
                 position.Y = 0;
                 velocity.Y *= velocityRetain;
             }
-            if (position.Y > game.windowSize[1]) // Bottom side
+            if (position.Y > Game.windowSize[1]) // Bottom side
             {
-                position.Y = game.windowSize[1];
+                position.Y = Game.windowSize[1];
                 velocity.Y *= velocityRetain;
             }
 
@@ -111,7 +160,7 @@ namespace MohawkGame2D
             for (int i = 0; i < randomStars.Length; i++)
             {
                 randomStars[i] = new Vector2[2];
-                randomStars[i][0] = Random.Vector2(new Vector2(0, 0), new Vector2(this.game.windowSize[0], this.game.windowSize[1]));
+                randomStars[i][0] = Random.Vector2(new Vector2(0, 0), new Vector2(this.Game.windowSize[0], this.Game.windowSize[1]));
                 randomStars[i][1] = new Vector2(Random.Float(0, this.starChangeTimer*2), 0); // Star scale interval as Vector2.X
             }
         }

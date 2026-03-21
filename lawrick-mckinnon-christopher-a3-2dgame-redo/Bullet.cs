@@ -5,47 +5,74 @@ using System.Numerics;
 
 namespace MohawkGame2D
 {
-    internal class Bullet
+    internal class Bullet : Entity
     {
-        Player player;
-        Vector2 position;
+        public Entity Owner;
         Vector2 direction;
         Vector2 velocity;
         float size;
         float moveSpeed;
         
 
-        public Bullet(Player setPlayer)
+        public Bullet(Scene setScene, Entity setOwner) : base(setScene)
         {
-            this.player = setPlayer;
-            this.position = player.position;
-            this.direction = Vector2.Normalize(Input.GetMousePosition() - this.position);
+            this.Owner = setOwner;
+            this.Scene = setScene;
+            this.position = Owner.position;
+            if (Owner is Player) { this.direction = Vector2.Normalize(Input.GetMousePosition() - this.position); }
+            if (Owner is Enemy) { this.direction = Vector2.Normalize(Scene.Player.position - this.position); }
+            
             this.moveSpeed = 500f;
             this.velocity = this.direction * moveSpeed;
             this.size = 10f / 2;
+
             
         }
         // Intended to run once every frame
-        public void Update()
+        public override void Update() // Overrides the base method of Entity
         {
             Move();
 
             DrawBullet();
+            if (Owner is Player)
+            {
+                EnemyCollision();
+            }
 
         }
         public void Move()
         {
             this.position += this.velocity * Time.DeltaTime;
             // Check within borders
-            if (player.scene.CheckOutsideBorders(this.position))
+            if (Scene.CheckOutsideBorders(this.position))
             {
-                player.scene.liveBullets.Remove(this);
+                Scene.RemoveEntity(this);
             }
         }
         public void DrawBullet()
         {
-            Draw.FillColor = Color.Green;
+            if (Owner is Enemy)
+            {
+                Draw.FillColor = Color.Red;
+            }
+            else { Draw.FillColor = Color.Blue; }
             Draw.Circle(this.position, size);
+        }
+
+        public void EnemyCollision()
+        {
+            foreach (Entity entity in Scene.entities)
+            {
+                if (entity is Enemy enemy)
+                {
+
+                    // Collision Check
+                    if (Vector2.DistanceSquared(enemy.position, this.position) <= enemy.boundingRadius*2 + this.size*2)
+                    {
+                        Scene.RemoveEntity(enemy);
+                    }
+                }
+            }
         }
     }
 }

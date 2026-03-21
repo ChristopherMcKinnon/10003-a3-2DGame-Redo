@@ -7,7 +7,7 @@ namespace MohawkGame2D
 {
     internal class Controls
     {
-        Scene scene;
+        Scene Scene;
         float moveSpeed;
         float boostFactor;
         float shotCooldown;
@@ -18,12 +18,12 @@ namespace MohawkGame2D
 
         public Controls(Scene setScene)
         {
-            this.scene = setScene;
-            this.moveSpeed = scene.player.moveSpeed;
-            this.boostFactor = scene.player.boostFactor;
-            this.shotCooldown = scene.player.shotCooldown;
-            this.boostCooldown = scene.player.boostCooldown;
-            this.boostCooldown = scene.player.boostTimer;
+            this.Scene = setScene;
+            this.moveSpeed = Scene.Player.moveSpeed;
+            this.boostFactor = Scene.Player.boostFactor;
+            this.shotCooldown = Scene.Player.shotCooldown;
+            this.boostCooldown = Scene.Player.boostCooldown;
+            this.boostCooldown = Scene.Player.boostTimer;
             this.shotInterval = 0;
             this.boostInterval = 0;
         }
@@ -40,19 +40,19 @@ namespace MohawkGame2D
             // Normal movement
             if (Input.IsKeyboardKeyDown(KeyboardInput.W)) // Up
             {
-                scene.player.AddVelocity(new Vector2(0, -moveSpeed));
+                Scene.Player.AddVelocity(new Vector2(0, -moveSpeed));
             }
             if (Input.IsKeyboardKeyDown(KeyboardInput.S)) // Down
             {
-                scene.player.AddVelocity(new Vector2(0, moveSpeed));
+                Scene.Player.AddVelocity(new Vector2(0, moveSpeed));
             }
             if (Input.IsKeyboardKeyDown(KeyboardInput.A)) // Left
             {
-                scene.player.AddVelocity(new Vector2(-moveSpeed, 0));
+                Scene.Player.AddVelocity(new Vector2(-moveSpeed, 0));
             }
             if (Input.IsKeyboardKeyDown(KeyboardInput.D)) // Right
             {
-                scene.player.AddVelocity(new Vector2(moveSpeed, 0));
+                Scene.Player.AddVelocity(new Vector2(moveSpeed, 0));
             }
         }
         public void CheckBurst()
@@ -62,7 +62,7 @@ namespace MohawkGame2D
             // Burst
             if (Input.IsKeyboardKeyDown(KeyboardInput.Space) && boostInterval <= 0)
             {
-                scene.player.AddVelocity(scene.player.velocity * boostFactor);
+                Scene.Player.AddVelocity(Scene.Player.velocity * boostFactor);
                 boostInterval = boostCooldown; // Reset
             }
         }
@@ -73,7 +73,7 @@ namespace MohawkGame2D
             // Shoot
             if (Input.IsMouseButtonDown(MouseInput.Left) && shotInterval <= 0)
             {
-                scene.player.Shoot();
+                Scene.Player.Shoot();
                 shotInterval = shotCooldown; // Reset
             }
         }

@@ -5,10 +5,8 @@ using System.Numerics;
 
 namespace MohawkGame2D
 {
-    internal class Player
+    internal class Player : Entity
     {
-        public Scene scene;
-        public Vector2 position;
         public Vector2 velocity;
         public float moveSpeed;
         public float size;
@@ -17,10 +15,9 @@ namespace MohawkGame2D
         public float boostFactor;
         public float boostTimer;
 
-        public Player(Scene setScene)
+        public Player(Scene setScene) : base(setScene)
         {
-            this.scene = setScene;
-            this.position = scene.game.windowCentre; // Start 
+            this.position = Scene.Game.windowCentre; // Start 
             this.velocity = new Vector2(0, 0); // Start 
             this.moveSpeed = 5f;
             this.size = 20f/2;
@@ -30,7 +27,7 @@ namespace MohawkGame2D
             this.boostTimer = 0.3f; // Seconds boost takes place over UNUSED
         }
         // Intended to be called every frame
-        public void Update()
+        public override void Update()
         {
             Move();
             DrawPlayer();
@@ -40,24 +37,22 @@ namespace MohawkGame2D
         {
             this.position += this.velocity * Time.DeltaTime;
             // Check if hitting border
-            Vector2[] bounceResults = scene.BounceOffBorder(this.position, this.velocity);
+            Vector2[] bounceResults = Scene.BounceOffBorder(this.position, this.velocity);
             this.position = bounceResults[0];
             this.velocity = bounceResults[1];
+        }
+        public void AddVelocity(Vector2 addVelocity)
+        {
+            this.velocity += addVelocity;
+        }
+        public void Shoot()
+        {
+            Scene.AddEntity(new Bullet(Scene, this));
         }
         public void DrawPlayer()
         {
             Draw.FillColor = Color.Blue;
             Draw.Circle(this.position, size);
-        }
-
-        public void AddVelocity(Vector2 addVelocity)
-        {
-            this.velocity += addVelocity;
-        }
-
-        public void Shoot()
-        {
-            scene.liveBullets.Add(new Bullet(this));
         }
         
     }
