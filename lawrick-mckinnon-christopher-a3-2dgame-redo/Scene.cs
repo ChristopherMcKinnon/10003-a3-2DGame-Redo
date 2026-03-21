@@ -26,7 +26,6 @@ namespace MohawkGame2D
 
         public float score;
 
-        Vector2[][] randomStars;
         float starChangeTimer;
         float starChangeInterval;
 
@@ -34,6 +33,7 @@ namespace MohawkGame2D
         public List<Entity> entities = new List<Entity>();
         public List<Entity> addEntityQueue = new List<Entity>();
         public List<Entity> removeEntityQueue = new List<Entity>();
+        public Star[] stars = new Star[100];
 
         //public List<Enemy> liveEnemies = new List<Enemy>();
             
@@ -60,24 +60,23 @@ namespace MohawkGame2D
 
             this.score = 0;
 
-            this.starChangeTimer = 1f; // Seconds it takes for stars to change;
             this.MakeStars();
             
         }
         // Runs every frame
         public void Update()
         {
-            this.DrawStars();
+            
             this.Controls.Update();
-
-            // Only update/add when game is on
+            // Update each entity (do not remove or add any new ones yet)
+            foreach (Entity entity in entities)
+            {
+                entity.Update();
+            }
+            // Only add when game is on
             if (!gameOver)
             {
-                // Update each entity (do not remove or add any new ones yet)
-                foreach (Entity entity in entities)
-                {
-                    entity.Update();
-                }
+                
                 // Add new entities from entity queue
                 foreach (Entity entity in addEntityQueue.ToList())
                 {
@@ -124,7 +123,10 @@ namespace MohawkGame2D
             // Add all entities to the remove queue (this happens every frame after gameOver set to true in this case (considering Update();)
             foreach(Entity entity in entities)
             {
-                RemoveEntity(entity);
+                if (entity is not Star)
+                {
+                    RemoveEntity(entity);
+                }
             }
             Text.Color = Color.Blue;
             string gameOverText = "GAME OVER!";
@@ -256,42 +258,16 @@ namespace MohawkGame2D
         }
         public void MakeStars()
         {
-            randomStars = new Vector2[100][];
-            // Make stars
-            for (int i = 0; i < randomStars.Length; i++)
+            // This is just for the rubric criteria, as just looping 100 times and doing AddEntity() does much better here;
+            for (int i = 0; i < stars.Length; i++)
             {
-                randomStars[i] = new Vector2[2];
-                randomStars[i][0] = Random.Vector2(new Vector2(0, 0), new Vector2(this.Game.windowSize[0], this.Game.windowSize[1]));
-                randomStars[i][1] = new Vector2(Random.Float(0, this.starChangeTimer*2), 0); // Star scale interval as Vector2.X
+                stars[i] = new Star(this);
+                AddEntity(stars[i]);
             }
         }
-        public void DrawStars()
-        {
-            for (int i = 0; i < randomStars.Length; i++)
-            {
-
-                // Decrease star scale interval
-                randomStars[i][1].X -= Time.DeltaTime;
-                Draw.FillColor = Color.White;
-                Draw.LineColor = Color.White;
-
-                if (randomStars[i][1].X <= 0)
-                {
-                    randomStars[i][1].X = starChangeTimer * 2; // Reset
-                }
-                if (randomStars[i][1].X <= starChangeTimer)
-                {
-                    Draw.Circle(randomStars[i][0], 1f);
-                }
-                if (randomStars[i][1].X <= starChangeTimer*2 && randomStars[i][1].X > starChangeTimer)
-                {
-                    Draw.Circle(randomStars[i][0], 2f);
-                }
-
-                
-            }
+        
             
-        }
+        
 
     }
 }

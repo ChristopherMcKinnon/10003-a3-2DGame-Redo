@@ -76,6 +76,7 @@ namespace MohawkGame2D
         }
         public void DrawEnemy()
         {
+            Draw.LineColor = Color.White;
             Draw.FillColor = Color.Red;
             Draw.Circle(position, radius);
         }

@@ -60,6 +60,7 @@ namespace MohawkGame2D
         {
             if (Owner is Enemy)
             {
+                Draw.LineColor = Color.White;
                 Draw.FillColor = Color.Red;
             }
             else { Draw.FillColor = Color.Blue; }

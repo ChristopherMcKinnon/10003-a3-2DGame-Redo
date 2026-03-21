@@ -69,6 +69,7 @@ namespace MohawkGame2D
         public void DrawPlayer()
         {
             Draw.FillColor = Color.Blue;
+            Draw.LineColor = Color.White;
             Draw.Circle(this.position, radius);
         }
         
