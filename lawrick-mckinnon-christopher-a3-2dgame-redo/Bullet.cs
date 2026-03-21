@@ -12,6 +12,7 @@ namespace MohawkGame2D
         Vector2 velocity;
         float size;
         float moveSpeed;
+        float damage;
         
 
         public Bullet(Scene setScene, Entity setOwner) : base(setScene)
@@ -25,6 +26,7 @@ namespace MohawkGame2D
             this.moveSpeed = 500f;
             this.velocity = this.direction * moveSpeed;
             this.size = 10f / 2;
+            this.damage = 3f;
 
             
         }
@@ -67,9 +69,10 @@ namespace MohawkGame2D
                 {
 
                     // Collision Check
-                    if (Vector2.DistanceSquared(enemy.position, this.position) <= enemy.boundingRadius*2 + this.size*2)
+                    if (Vector2.DistanceSquared(enemy.position, this.position) <= enemy.boundingRadius * enemy.boundingRadius + this.size * this.size)
                     {
-                        Scene.RemoveEntity(enemy);
+                        enemy.GetHit(this.damage);
+                        Scene.RemoveEntity(this);
                     }
                 }
             }

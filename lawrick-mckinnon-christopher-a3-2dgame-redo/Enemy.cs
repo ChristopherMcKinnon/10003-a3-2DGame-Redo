@@ -13,6 +13,7 @@ namespace MohawkGame2D
         public float size;
         public float boundingRadius;
         public float shotCooldown;
+        public float health;
         float shotInterval;
 
         public Enemy(Scene setScene) : base(setScene)
@@ -25,6 +26,7 @@ namespace MohawkGame2D
             this.boundingRadius = size + 5f;
             this.shotCooldown = 0.5f;
             this.shotInterval = 0;
+            this.health = 10f;
         }
         public override void Update()
         {
@@ -54,6 +56,14 @@ namespace MohawkGame2D
             {
                 Scene.AddEntity(new Bullet(Scene, this));
                 shotInterval = shotCooldown; // Reset
+            }
+        }
+        public void GetHit(float damage)
+        {
+            this.health -= damage;
+            if (this.health < 0)
+            {
+                Scene.RemoveEntity(this);
             }
         }
         public void DrawEnemy()
