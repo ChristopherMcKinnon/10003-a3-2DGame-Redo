@@ -39,10 +39,10 @@ namespace MohawkGame2D
             AddEntity(this.Player);
             Console.WriteLine($"Entities: {entities}");
             this.Controls = new Controls(this);
-
+            this.spawnWidth = 50;
             this.spawnArea = [new Vector2(0-spawnWidth, 0-spawnWidth), new Vector2(Game.windowSize[0] + spawnWidth, Game.windowSize[1] + spawnWidth)];
 
-            this.enemySpawnTimer = 2f;
+            this.enemySpawnTimer = 3f;
             this.enemySpawnInterval = 0f;
 
             this.starChangeTimer = 1f; // Seconds it takes for stars to change;
@@ -84,6 +84,7 @@ namespace MohawkGame2D
             removeEntityQueue.Add(setEntity);
         }
 
+
         public void SpawnEnemies()
         {
             enemySpawnInterval -= Time.DeltaTime;
@@ -97,25 +98,25 @@ namespace MohawkGame2D
             
         }
 
-        public Vector2 RandomSpawn()
+        public Vector2 RandomBorderSpawn()
         {
             Vector2 spawnLocation = new Vector2(-spawnWidth, -spawnWidth); // Just in case
             int spawnSide = Random.Integer(0, 4);
             if (spawnSide == 0) // Left
             {
-                spawnLocation = new Vector2(Random.Float(0, -spawnWidth), Random.Float(0, Game.windowSize[1]));
+                spawnLocation = new Vector2(Random.Float(Enemy.radius*2, -spawnWidth), Random.Float(0, Game.windowSize[1]));
             }
-            if (spawnSide == 0) // Top
+            if (spawnSide == 1) // Top
             {
-                spawnLocation = new Vector2(Random.Float(0, Game.windowSize[0]), Random.Float(0, -spawnWidth));
+                spawnLocation = new Vector2(Random.Float(0, Game.windowSize[0]), Random.Float(Enemy.radius*2, -spawnWidth));
             }
-            if (spawnSide == 0) // Right
+            if (spawnSide == 2) // Right
             {
-                spawnLocation = new Vector2(Game.windowSize[0] + Random.Float(Game.windowSize[0], spawnWidth), Random.Float(0, Game.windowSize[1]));
+                spawnLocation = new Vector2(Game.windowSize[0] + Random.Float(Enemy.radius*2, spawnWidth), Random.Float(0, Game.windowSize[1]));
             }
-            if (spawnSide == 0) // Down
+            if (spawnSide == 3) // Down
             {
-                spawnLocation = new Vector2(Random.Float(0, Game.windowSize[0]), Game.windowSize[1] + Random.Float(0, spawnWidth));
+                spawnLocation = new Vector2(Random.Float(0, Game.windowSize[0]), Game.windowSize[1] + Random.Float(Enemy.radius*2, spawnWidth));
             }
             return spawnLocation;
         }

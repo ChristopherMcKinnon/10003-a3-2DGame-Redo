@@ -9,7 +9,7 @@ namespace MohawkGame2D
     {
         public Vector2 velocity;
         public float moveSpeed;
-        public float size;
+        public float radius;
         public float shotCooldown;
         public float boostCooldown;
         public float boostFactor;
@@ -20,7 +20,7 @@ namespace MohawkGame2D
             this.position = Scene.Game.windowCentre; // Start 
             this.velocity = new Vector2(0, 0); // Start 
             this.moveSpeed = 5f;
-            this.size = 20f/2;
+            this.radius = 20f/2;
             this.shotCooldown = 0.2f; // Seconds shot takes to cooldown
             this.boostCooldown = 1f; // Seconds boost takes to recharge
             this.boostFactor = 5f; // Amount boost scales velocity
@@ -52,7 +52,7 @@ namespace MohawkGame2D
         public void DrawPlayer()
         {
             Draw.FillColor = Color.Blue;
-            Draw.Circle(this.position, size);
+            Draw.Circle(this.position, radius);
         }
         
     }

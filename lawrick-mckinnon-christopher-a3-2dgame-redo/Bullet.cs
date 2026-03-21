@@ -10,7 +10,7 @@ namespace MohawkGame2D
         public Entity Owner;
         Vector2 direction;
         Vector2 velocity;
-        float size;
+        float radius;
         float moveSpeed;
         float damage;
         
@@ -25,7 +25,7 @@ namespace MohawkGame2D
             
             this.moveSpeed = 500f;
             this.velocity = this.direction * moveSpeed;
-            this.size = 10f / 2;
+            this.radius = 10f / 2;
             this.damage = 3f;
 
             
@@ -58,7 +58,7 @@ namespace MohawkGame2D
                 Draw.FillColor = Color.Red;
             }
             else { Draw.FillColor = Color.Blue; }
-            Draw.Circle(this.position, size);
+            Draw.Circle(this.position, radius);
         }
 
         public void EnemyCollision()
@@ -69,7 +69,7 @@ namespace MohawkGame2D
                 {
 
                     // Collision Check
-                    if (Vector2.DistanceSquared(enemy.position, this.position) <= enemy.boundingRadius * enemy.boundingRadius + this.size * this.size)
+                    if (Vector2.DistanceSquared(enemy.position, this.position) <= enemy.boundingRadius * enemy.boundingRadius + this.radius * this.radius)
                     {
                         enemy.GetHit(this.damage);
                         Scene.RemoveEntity(this);
