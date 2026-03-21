@@ -14,6 +14,7 @@ namespace MohawkGame2D
         public float boostCooldown;
         public float boostFactor;
         public float boostTimer;
+        public float health;
 
         public Player(Scene setScene) : base(setScene)
         {
@@ -25,6 +26,7 @@ namespace MohawkGame2D
             this.boostCooldown = 1f; // Seconds boost takes to recharge
             this.boostFactor = 5f; // Amount boost scales velocity
             this.boostTimer = 0.3f; // Seconds boost takes place over UNUSED
+            this.health = 15f;
         }
         // Intended to be called every frame
         public override void Update()
@@ -48,6 +50,14 @@ namespace MohawkGame2D
         public void Shoot()
         {
             Scene.AddEntity(new Bullet(Scene, this));
+        }
+        public void GetHit(float damage)
+        {
+            this.health -= damage;
+            if (this.health <= 0)
+            {
+                Scene.GameEnd();
+            }
         }
         public void DrawPlayer()
         {

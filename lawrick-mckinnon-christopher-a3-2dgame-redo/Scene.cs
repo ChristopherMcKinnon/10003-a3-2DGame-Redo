@@ -13,11 +13,16 @@ namespace MohawkGame2D
         public Controls Controls;
         public Vector2[] spawnArea;
         float spawnWidth;
+
+        bool gameOver;
         float gameTimer;
         float gameInterval;
+        float peaceTimer;
 
         float enemySpawnTimer;
         float enemySpawnInterval;
+
+        public float score;
 
         Vector2[][] randomStars;
         float starChangeTimer;
@@ -41,13 +46,17 @@ namespace MohawkGame2D
             AddEntity(this.Player);
             Console.WriteLine($"Entities: {entities}");
             this.Controls = new Controls(this);
-            this.gameTimer = 10f;
-            this.gameInterval = 0f;
+            this.gameOver = false;
+            this.gameTimer = 60f;
+            this.gameInterval = gameTimer;
+            this.peaceTimer = 3f;
             this.spawnWidth = 50;
             this.spawnArea = [new Vector2(0-spawnWidth, 0-spawnWidth), new Vector2(Game.windowSize[0] + spawnWidth, Game.windowSize[1] + spawnWidth)];
 
-            this.enemySpawnTimer = 3f;
+            this.enemySpawnTimer = 1f;
             this.enemySpawnInterval = 0f;
+
+            this.score = 0;
 
             this.starChangeTimer = 1f; // Seconds it takes for stars to change;
             this.MakeStars();
@@ -59,17 +68,22 @@ namespace MohawkGame2D
             this.DrawStars();
             this.Controls.Update();
 
-            // Update each entity (do not remove or add any new ones yet)
-            foreach (Entity entity in entities)
+            // Only update/add when game is on
+            if (!gameOver)
             {
-                entity.Update();
+                // Update each entity (do not remove or add any new ones yet)
+                foreach (Entity entity in entities)
+                {
+                    entity.Update();
+                }
+                // Add new entities from entity queue
+                foreach (Entity entity in addEntityQueue.ToList())
+                {
+                    entities.Add(entity);
+                }
+                addEntityQueue.Clear();
             }
-            // Add new entities from entity queue
-            foreach (Entity entity in addEntityQueue.ToList())
-            {
-                entities.Add(entity);
-            }
-            addEntityQueue.Clear();
+            
             // Remove entities from entity queue
             foreach (Entity entity in removeEntityQueue.ToList())
             {
@@ -77,9 +91,10 @@ namespace MohawkGame2D
             }
             removeEntityQueue.Clear();
 
-            SpawnEnemies();
+            SpawnEnemies(); // Add timer
 
-            DisplayUI();
+            GameTimeUpdate();
+            
         }
         public void AddEntity(Entity setEntity)
         {
@@ -90,44 +105,93 @@ namespace MohawkGame2D
             removeEntityQueue.Add(setEntity);
         }
 
-
+        public void GameEnd()
+        {
+            if (!gameOver) // Only runs once at the end of the game
+            {
+                gameOver = true; // Permanently set to true past this point
+                CalculateScore();
+            }
+            
+            // Add all entities to the remove queue
+            foreach(Entity entity in entities)
+            {
+                RemoveEntity(entity);
+            }
+            string gameOverText = "GAME OVER!";
+            Text.Size = 100;
+            DrawCentredText(gameOverText, 0, 0);
+            Text.Size = 50;
+            DrawCentredText($"Your score: {this.score}", 0, 50);
+        }
         public void SpawnEnemies()
         {
-            enemySpawnInterval -= Time.DeltaTime;
-
-            if (enemySpawnInterval <= 0)
+            peaceTimer -= Time.DeltaTime;
+            if (peaceTimer <= 0)
             {
-                AddEntity(new Enemy(this));
-                enemySpawnInterval = enemySpawnTimer;
+                enemySpawnInterval -= Time.DeltaTime;
+                if (enemySpawnInterval <= 0)
+                {
+                    AddEntity(new Enemy(this));
+                    ChangeDifficulty();
+                }
+                
             }
+            
+
+            
 
             
         }
-        public void DisplayUI()
+        public void DrawCentredText(string setText, float xOffset, float yOffset)
+        {
+            Text.Draw(setText, new Vector2((Game.windowSize[0] - setText.Length * (Text.Size / 2)) / 2 + xOffset, Game.windowCentre.Y - Text.Size / 2 + yOffset)); // Repurpose this to centre text on screen
+        }
+        public void GameTimeUpdate()
         {
             // Set timer
-            gameTimer -= Time.DeltaTime;
+            gameInterval -= Time.DeltaTime;
+            DrawTimerUI();
+        }
+        public float CalculateScore()
+        {
+            score += Player.health; // Enemies already add to score when they die
+            return score;
+        }
+        public void DrawTimerUI()
+        {
+            // Draw Timer
             Text.Color = Color.Blue;
-            if (gameTimer <= 0)
+            Text.Size = 25;
+            if (gameInterval <= 0)
             {
-                Text.Draw($"Timer: OVER!!", new Vector2(0, 0));
+                // End Timer (timer disappears)
+
+                GameEnd();
             }
             else
             {
-                Text.Draw($"Timer: {gameTimer}", new Vector2(0, 0));
+                // Continue Timer
+                string timerString = $"Timer: {Math.Round(gameInterval)}";
+                Text.Draw(timerString, new Vector2(0, 0));
             }
+        }
+        public void ChangeDifficulty()
+        {
+            enemySpawnInterval = enemySpawnTimer + (gameInterval/gameTimer)*2;
         }
         public Vector2 RandomBorderSpawn()
         {
-            Vector2 spawnLocation = new Vector2(-spawnWidth, -spawnWidth); // Just in case
+            Vector2 spawnLocation = new Vector2(-spawnWidth, -spawnWidth); // Just in case of bugs ( this helped me once already )
             int spawnSide = Random.Integer(0, 4);
             if (spawnSide == 0) // Left
             {
-                spawnLocation = new Vector2(Random.Float(Enemy.radius*2, -spawnWidth), Random.Float(0, Game.windowSize[1]));
+                // Each version of this for left, top, right, and left helps the object spawn randomly just enough outside the screen so that it may not spawn on the screen
+                spawnLocation = new Vector2(Random.Float(-Enemy.radius*2, -spawnWidth), Random.Float(0, Game.windowSize[1])); 
             }
             if (spawnSide == 1) // Top
             {
-                spawnLocation = new Vector2(Random.Float(0, Game.windowSize[0]), Random.Float(Enemy.radius*2, -spawnWidth));
+                spawnLocation = new Vector2(Random.Float(0, Game.windowSize[0]), Random.Float(-Enemy.radius*2, -spawnWidth));
             }
             if (spawnSide == 2) // Right
             {

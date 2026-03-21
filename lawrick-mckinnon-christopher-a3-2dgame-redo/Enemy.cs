@@ -70,6 +70,7 @@ namespace MohawkGame2D
             if (this.health < 0)
             {
                 Scene.RemoveEntity(this);
+                Scene.score++;
             }
         }
         public void DrawEnemy()
