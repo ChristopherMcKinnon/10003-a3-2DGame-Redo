@@ -13,6 +13,8 @@ namespace MohawkGame2D
         public Controls Controls;
         public Vector2[] spawnArea;
         float spawnWidth;
+        float gameTimer;
+        float gameInterval;
 
         float enemySpawnTimer;
         float enemySpawnInterval;
@@ -39,6 +41,8 @@ namespace MohawkGame2D
             AddEntity(this.Player);
             Console.WriteLine($"Entities: {entities}");
             this.Controls = new Controls(this);
+            this.gameTimer = 10f;
+            this.gameInterval = 0f;
             this.spawnWidth = 50;
             this.spawnArea = [new Vector2(0-spawnWidth, 0-spawnWidth), new Vector2(Game.windowSize[0] + spawnWidth, Game.windowSize[1] + spawnWidth)];
 
@@ -74,6 +78,8 @@ namespace MohawkGame2D
             removeEntityQueue.Clear();
 
             SpawnEnemies();
+
+            DisplayUI();
         }
         public void AddEntity(Entity setEntity)
         {
@@ -97,7 +103,20 @@ namespace MohawkGame2D
 
             
         }
-
+        public void DisplayUI()
+        {
+            // Set timer
+            gameTimer -= Time.DeltaTime;
+            Text.Color = Color.Blue;
+            if (gameTimer <= 0)
+            {
+                Text.Draw($"Timer: OVER!!", new Vector2(0, 0));
+            }
+            else
+            {
+                Text.Draw($"Timer: {gameTimer}", new Vector2(0, 0));
+            }
+        }
         public Vector2 RandomBorderSpawn()
         {
             Vector2 spawnLocation = new Vector2(-spawnWidth, -spawnWidth); // Just in case
