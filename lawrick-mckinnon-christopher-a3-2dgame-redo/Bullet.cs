@@ -26,9 +26,10 @@ namespace MohawkGame2D
             this.moveSpeed = 500f;
             this.velocity = this.direction * moveSpeed;
             this.radius = 10f / 2;
-            this.damage = 3f;
+            if (Owner is Player) { this.damage = Player.bulletDamage; }
+            if (Owner is Enemy) { this.damage = Enemy.bulletDamage; }
 
-            
+
         }
         // Intended to run once every frame
         public override void Update() // Overrides the base method of Entity
@@ -39,6 +40,10 @@ namespace MohawkGame2D
             if (Owner is Player)
             {
                 EnemyCollision();
+            }
+            if (Owner is Enemy)
+            {
+                PlayerCollision();
             }
 
         }
@@ -75,6 +80,19 @@ namespace MohawkGame2D
                         Scene.RemoveEntity(this);
                     }
                 }
+            }
+        }
+        public void PlayerCollision()
+        {
+            
+            // Collision Check
+
+            // Only references one player, the player set by scene
+            // Must change this if adding more players to check through entity list just like EnemyCollision();
+            if (Vector2.DistanceSquared(Scene.Player.position, this.position) <= Scene.Player.boundingRadius * Scene.Player.boundingRadius + this.radius * this.radius)
+            {
+                Scene.Player.GetHit(this.damage);
+                Scene.RemoveEntity(this);
             }
         }
     }

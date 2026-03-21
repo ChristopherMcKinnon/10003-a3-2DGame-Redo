@@ -14,6 +14,7 @@ namespace MohawkGame2D
         public float boundingRadius;
         public float shotCooldown;
         public float health;
+        public static float bulletDamage = 1f;
         float shotInterval;
 
         public Enemy(Scene setScene) : base(setScene)

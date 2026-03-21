@@ -11,10 +11,12 @@ namespace MohawkGame2D
         public Game Game;
         public Player Player;
         public Controls Controls;
+        Font font = Text.LoadFont("..\\..\\..\\..\\..\\10003-a3-2DGame-Redo\\lawrick-mckinnon-christopher-a3-2dgame-redo\\Assets\\m42.TTF");
+
         public Vector2[] spawnArea;
         float spawnWidth;
 
-        bool gameOver;
+        public bool gameOver;
         float gameTimer;
         float gameInterval;
         float peaceTimer;
@@ -82,6 +84,10 @@ namespace MohawkGame2D
                     entities.Add(entity);
                 }
                 addEntityQueue.Clear();
+
+                SpawnEnemies();
+                DrawHealthUI();
+                GameTimeUpdate();
             }
             
             // Remove entities from entity queue
@@ -91,9 +97,11 @@ namespace MohawkGame2D
             }
             removeEntityQueue.Clear();
 
-            SpawnEnemies(); // Add timer
-
-            GameTimeUpdate();
+            // Process Game End
+            if (gameOver)
+            {
+                GameEnd();
+            }
             
         }
         public void AddEntity(Entity setEntity)
@@ -105,7 +113,7 @@ namespace MohawkGame2D
             removeEntityQueue.Add(setEntity);
         }
 
-        public void GameEnd()
+        public void GameEnd() // Should always be called within the update loop
         {
             if (!gameOver) // Only runs once at the end of the game
             {
@@ -113,15 +121,16 @@ namespace MohawkGame2D
                 CalculateScore();
             }
             
-            // Add all entities to the remove queue
+            // Add all entities to the remove queue (this happens every frame after gameOver set to true in this case (considering Update();)
             foreach(Entity entity in entities)
             {
                 RemoveEntity(entity);
             }
+            Text.Color = Color.Blue;
             string gameOverText = "GAME OVER!";
-            Text.Size = 100;
-            DrawCentredText(gameOverText, 0, 0);
-            Text.Size = 50;
+            Text.Size = 70;
+            DrawCentredText(gameOverText, 15, 0);
+            Text.Size = 25;
             DrawCentredText($"Your score: {this.score}", 0, 50);
         }
         public void SpawnEnemies()
@@ -145,13 +154,24 @@ namespace MohawkGame2D
         }
         public void DrawCentredText(string setText, float xOffset, float yOffset)
         {
-            Text.Draw(setText, new Vector2((Game.windowSize[0] - setText.Length * (Text.Size / 2)) / 2 + xOffset, Game.windowCentre.Y - Text.Size / 2 + yOffset)); // Repurpose this to centre text on screen
+            float fontOffset = 20f;
+            Text.Draw(setText, new Vector2(Game.windowSize[0]/2 - setText.Length * (Text.Size/2) + xOffset + fontOffset, Game.windowSize[1]/2 - (Text.Size/2) + yOffset - fontOffset), font); // Repurpose this to centre text on screen
         }
         public void GameTimeUpdate()
         {
             // Set timer
             gameInterval -= Time.DeltaTime;
-            DrawTimerUI();
+            if (gameInterval <= 0)
+            {
+                // End Timer (timer disappears)
+
+                gameOver = true;
+            }
+            else
+            {
+                // Continue Timer
+                DrawTimerUI();
+            }
         }
         public float CalculateScore()
         {
@@ -163,18 +183,15 @@ namespace MohawkGame2D
             // Draw Timer
             Text.Color = Color.Blue;
             Text.Size = 25;
-            if (gameInterval <= 0)
-            {
-                // End Timer (timer disappears)
-
-                GameEnd();
-            }
-            else
-            {
-                // Continue Timer
-                string timerString = $"Timer: {Math.Round(gameInterval)}";
-                Text.Draw(timerString, new Vector2(0, 0));
-            }
+            
+            string timerString = $"Time: {Math.Round(gameInterval)}";
+            Text.Draw(timerString, new Vector2(0, 0), font);
+            
+        }
+        public void DrawHealthUI()
+        {
+            Text.Color = Color.Green;
+            DrawCentredText($"Health: {Player.health}", 0, 313);
         }
         public void ChangeDifficulty()
         {
